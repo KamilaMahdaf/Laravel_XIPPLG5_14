@@ -1,9 +1,10 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-use App\Models\Student;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Student;
 
 class StudentController extends Controller
 {
@@ -29,46 +30,58 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'nis' => 'required|uniqe:students',
+        $validated = $request->validate([
+            'nis' => 'required|unique:students',
             'nama_lengkap' => 'required',
             'jenis_kelamin' => 'required',
             'nisn' => 'required|unique:students',
         ]);
 
-        Student::create($request->all());
-        return redirect()->route('admin.students.index')->with('sucess', 'Data berhasil disimpan!');
+        Student::create($validated);
+
+        return redirect()->route('admin.students.index')
+                         ->with('success', 'Data berhasil disimpan!');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Student $student)
     {
-        //
+        return view('admin.student.show', compact('student'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Student $student)
     {
-        //
+        return view('admin.student.edit', compact('student'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Student $student)
     {
-        //
-    }
+        $validated = $request->validate([
+            'nis' => 'required',
+            'nama_lengkap' => 'required',
+            'jenis_kelamin' => 'required',
+            'nisn' => 'required',
+        ]);
+
+        $student->update($validated);                   
+        return redirect()->route('admin.students.index')->with('success', 'Data siswa berhasil diperbarui');
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Student $student)
     {
-        //
+        $student->delete();
+
+        return redirect()->route('admin.students.index')
+                         ->with('success', 'Data siswa berhasil dihapus');
     }
 }
